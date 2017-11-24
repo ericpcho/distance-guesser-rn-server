@@ -3,6 +3,8 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
 
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
@@ -20,6 +22,25 @@ app.use(
     origin: CLIENT_ORIGIN
   })
 );
+
+app.get('/api/cities', (req, res) => {
+  Cities
+    .find()
+    .then(cities => res.status(200).json(cities));
+});
+
+app.post('/api/cities', jsonParser, (req, res) => {
+  const newCities = [{
+    city: req.body.city,
+    state: req.body.state
+  }];
+
+  Cities
+    .create(newCities)
+    .then(cities => {
+      res.status(201).json(cities);
+    });
+});
 
 function runServer(port = PORT) {
   const server = app
