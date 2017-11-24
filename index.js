@@ -1,12 +1,14 @@
 'use strict';
 
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-const {Cities} = require('./models.js');
-
+const { Cities } = require('./models.js');
+const testData = require('./test-data');
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
 
@@ -27,20 +29,32 @@ app.use(
 app.get('/api/cities', (req, res) => {
   Cities
     .find()
-    .then(cities => res.status(200).json(cities));
+    .then(cities =>
+      res.status(200).json(cities))
+    .catch(() => {
+      res.status(500).json({ error: 'Something went wrong' });
+    });
+
 });
 
 app.post('/api/cities', jsonParser, (req, res) => {
-  const newCities = [{
-    city: req.body.city,
-    state: req.body.state
-  }];
+console.log(req.body);
 
-  Cities
-    .create(newCities)
-    .then(cities => {
-      res.status(201).json(cities);
+  // Cities.insertMany({cities: req.body}, (error) => {
+  //   if (error) {
+  //     res.send(error);
+  //   }
+  // });
+
+
+  for (let i = 0; i < req.body.length; i++) {
+
+    Cities.create({city: req.body[i].city, state: req.body[i].state}, (err, user) => {
+      if (err)
+        res.send(err);
     });
+  }
+  res.json({saved: true});
 });
 
 function runServer(port = PORT) {
