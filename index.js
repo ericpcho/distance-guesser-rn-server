@@ -5,12 +5,13 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const { Cities } = require('./models.js');
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
-
+mongoose.Promise = global.Promise;
 const app = express();
 
 app.use(
@@ -24,6 +25,7 @@ app.use(
     origin: CLIENT_ORIGIN
   })
 );
+
 
 app.get('/api/cities', (req, res) => {
   Cities
